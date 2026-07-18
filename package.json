@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/jsdom": "^28.0.3",
+    "@types/marked": "^5.0.2",
     "prettier": "^3.7.4",
     "turbo": "^2.10.5",
     "typescript": "5.9.2"
@@ -33,9 +34,12 @@
     "@mozilla/readability": "^0.6.0",
     "bullmq": "^5.80.8",
     "cheerio": "^1.2.0",
+    "docx": "^9.7.1",
     "jsdom": "^29.1.1",
+    "marked": "^18.0.6",
     "openai": "^6.48.0",
     "playwright": "^1.61.1",
+    "puppeteer": "^25.3.0",
     "turndown": "^7.2.4"
   }
 }
