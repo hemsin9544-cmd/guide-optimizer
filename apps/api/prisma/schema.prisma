@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  projects Project[]
+  jobs     Job[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(DRAFT)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  jobs Job[]
+
+  @@map("projects")
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      JobStatus @default(PENDING)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId    String @map("user_id")
+  user      User   @relation(fields: [userId], references: [id])
+  projectId String @map("project_id")
+  project   Project @relation(fields: [projectId], references: [id])
+
+  analyses Analysis[]
+
+  @@map("jobs")
+}
+
+model Analysis {
+  id      String @id @default(cuid())
+  type    AnalysisType
+  content String
+  score   Int?
+
+  jobId String @map("job_id")
+  job   Job    @relation(fields: [jobId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("analyses")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum AnalysisType {
+  SEO
+  READABILITY
+  GRAMMAR
+  STYLE
+  STRUCTURE
+}
