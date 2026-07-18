@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: guide-optimizer-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: guide-optimizer-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: guide_optimizer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  redis-data:
+  postgres-data:
