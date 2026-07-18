@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/jsdom": "^28.0.3",
     "prettier": "^3.7.4",
     "turbo": "^2.10.5",
     "typescript": "5.9.2"
@@ -30,6 +31,7 @@
     "@mozilla/readability": "^0.6.0",
     "bullmq": "^5.80.8",
     "cheerio": "^1.2.0",
+    "jsdom": "^29.1.1",
     "playwright": "^1.61.1",
     "turndown": "^7.2.4"
   }
