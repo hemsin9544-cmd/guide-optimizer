@@ -27,6 +27,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "bullmq": "^5.80.8"
+    "bullmq": "^5.80.8",
+    "playwright": "^1.61.1"
   }
 }
