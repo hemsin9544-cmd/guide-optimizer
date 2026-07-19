@@ -10,11 +10,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy package files first (for layer caching)
+# Copy package files and Prisma schema first
 COPY package*.json ./
+COPY prisma ./prisma/
+COPY prisma.config.ts ./
+
+# Install dependencies (postinstall needs schema)
 RUN npm install
 
-# Copy source code
+# Copy rest of source code
 COPY . .
 
 # Build the app
