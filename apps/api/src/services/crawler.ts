@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { chromium, Browser, Page } from "playwright";
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";

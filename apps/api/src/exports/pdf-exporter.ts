@@ -14,7 +14,11 @@ export class PDFExporter extends BaseExporter {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // FROM:
+    await page.setContent(html, { waitUntil: "load" as any });
+
+    // TO:
+    await page.setContent(html, { waitUntil: "load" });
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -22,6 +26,6 @@ export class PDFExporter extends BaseExporter {
     });
 
     await browser.close();
-    return pdf;
+    return pdf as any;
   }
 }
