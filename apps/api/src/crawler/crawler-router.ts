@@ -1,7 +1,4 @@
-// ============================================
-// apps/api/src/crawler/crawler-router.ts
-// ============================================
-import { Router } from "express";
+﻿import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { JWTService } from "../auth";
 import { createAuthMiddleware, AuthRequest } from "../auth";
@@ -9,18 +6,16 @@ import { addCrawlJob, getJobStatus } from "./job-queue";
 
 export function createCrawlerRouter(
   prisma: PrismaClient,
-  jwtService: JWTService
+  jwtService: JWTService,
 ) {
   const router = Router();
   const auth = createAuthMiddleware(jwtService);
 
-  // POST /api/crawl - Start a new crawl job
   router.post("/crawl", auth, async (req: AuthRequest, res) => {
     try {
       const { url, projectId, options } = req.body;
       const userId = req.user!.userId;
 
-      // Validate URL
       let validatedUrl: URL;
       try {
         validatedUrl = new URL(url);
@@ -28,7 +23,6 @@ export function createCrawlerRouter(
         return res.status(400).json({ message: "Invalid URL provided" });
       }
 
-      // Create a job record in the database
       const job = await prisma.job.create({
         data: {
           title: `Crawl: ${validatedUrl.hostname}`,
@@ -39,7 +33,6 @@ export function createCrawlerRouter(
         },
       });
 
-      // Add to the queue
       await addCrawlJob({
         jobId: job.id,
         url: validatedUrl.toString(),
@@ -60,13 +53,12 @@ export function createCrawlerRouter(
     }
   });
 
-  // GET /api/crawl/:jobId/status - Check crawl job status
   router.get("/crawl/:jobId/status", auth, async (req: AuthRequest, res) => {
     try {
-      const { jobId } = req.params;
+      const jobIdParam = req.params.jobId;
+      const jobId = Array.isArray(jobIdParam) ? jobIdParam[0] : jobIdParam;
       const userId = req.user!.userId;
 
-      // Get job from database
       const job = await prisma.job.findFirst({
         where: { id: jobId, userId },
         include: {
@@ -78,7 +70,6 @@ export function createCrawlerRouter(
         return res.status(404).json({ message: "Job not found" });
       }
 
-      // Get queue status
       const queueJob = await getJobStatus(jobId);
 
       res.json({
@@ -99,7 +90,6 @@ export function createCrawlerRouter(
     }
   });
 
-  // GET /api/crawl/history - Get user's crawl history
   router.get("/crawl/history", auth, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.userId;
