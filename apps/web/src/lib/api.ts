@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Use Railway URL in production, localhost in development
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export const api = axios.create({
@@ -10,7 +9,6 @@ export const api = axios.create({
   },
 });
 
-// Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
