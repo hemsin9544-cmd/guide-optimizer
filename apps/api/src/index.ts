@@ -15,7 +15,7 @@ import {
 dotenv.config();
 
 // Create Prisma client AFTER dotenv loads
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({});
 
 const jwtService = new JWTService(process.env.JWT_SECRET || "fallback-secret");
 
