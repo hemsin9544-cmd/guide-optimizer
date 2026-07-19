@@ -11,12 +11,15 @@ import {
   AuthRequest,
 } from "./auth";
 
+// Load env vars FIRST
 dotenv.config();
 
-const app = express();
+// Create Prisma client AFTER dotenv loads
 const prisma = new PrismaClient();
+
 const jwtService = new JWTService(process.env.JWT_SECRET || "fallback-secret");
 
+const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
