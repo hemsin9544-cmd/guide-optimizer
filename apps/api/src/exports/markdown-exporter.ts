@@ -12,15 +12,10 @@ export class MarkdownExporter extends BaseExporter {
 
   private buildHeader(options: ExportOptions): string {
     const lines: string[] = [];
-    if (options.title) lines.push(`# ${options.title}
-`);
-    if (options.author) lines.push(`**Author:** ${options.author}
-`);
-    if (options.date) lines.push(`**Date:** ${options.date}
-`);
-    if (lines.length) lines.push("---
-");
-    return lines.join("
-");
+    if (options.title) lines.push(`# ${options.title}\n`);
+    if (options.author) lines.push(`**Author:** ${options.author}\n`);
+    if (options.date) lines.push(`**Date:** ${options.date}\n`);
+    if (lines.length) lines.push("---\n");
+    return lines.join("\n");
   }
 }
