@@ -28,4 +28,4 @@ RUN npm run build
 EXPOSE 3001
 
 # Start the app
-CMD ["sh", "-c", "npm run build && node dist/index.js"]
+CMD ["sh", "-c", "npm run build && node /tmp/dist/index.js"]
