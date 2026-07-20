@@ -42,7 +42,10 @@ dotenv.config();
 
 // Create PostgreSQL connection pool
 const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
 const adapter = new PrismaPg(pool);
 
 // Create Prisma client WITH the adapter (required in Prisma 7)
