@@ -15,7 +15,11 @@ import {
   createAuthMiddleware,
   AuthRequest,
 } from "./auth";
-import { createCrawlRouter } from "./crawler";
+import { createCrawlerRouter } from "./crawler";
+
+// Load env vars FIRST
+dotenv.config();
+
 // ============================================
 // DEBUG LOGGING
 // ============================================
@@ -37,41 +41,38 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (reason, promise) => {
   console.error("UNHANDLED REJECTION at:", promise, "reason:", reason);
 });
-// ============================================
-// Load env vars FIRST
-dotenv.config();
 
-// Create PostgreSQL connection pool
+// ============================================
+// Database connection
+// ============================================
 const connectionString =
   process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL || "";
 
-// Check if we have a connection string
 if (!connectionString) {
   console.error("ERROR: No DATABASE_URL or DATABASE_PUBLIC_URL set!");
   process.exit(1);
 }
 
-// Parse URL to check for SSL params
+let usePublicUrl = false;
 try {
   const url = new URL(connectionString);
   console.log("DB Host:", url.hostname);
   console.log("DB Port:", url.port);
   console.log("DB has sslmode:", url.searchParams.has("sslmode"));
+  usePublicUrl = !url.hostname.endsWith(".railway.internal");
 } catch (e) {
   console.log("Failed to parse DB URL");
 }
 
-// Create pool
+// Private network (*.railway.internal) => no SSL
+// Public URL => SSL required
 const pool = new Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: usePublicUrl ? { rejectUnauthorized: false } : false,
 });
 
 const adapter = new PrismaPg(pool);
-
-// Create Prisma client WITH the adapter (required in Prisma 7)
 const prisma = new PrismaClient({ adapter });
-
 const jwtService = new JWTService(process.env.JWT_SECRET || "fallback-secret");
 
 const app = express();
@@ -122,21 +123,15 @@ app.get("/test-db", async (req, res) => {
     res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
-// Start server
-// ... (imports and setup code)
 
-// Remove this old line (around line 54):
-// const PORT = 3001;
-
-// ... (middleware, routes, etc.)
-
-// Keep this at the bottom (around line 103):
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 // Crawl routes (protected)
-app.use("/api", createCrawlRouter(prisma, jwtService));
+app.use("/api", createCrawlerRouter(prisma, jwtService));
 
-app.listen(PORT, () => {
-  console.log(`🚀 API server running on http://localhost:${PORT}`);
+// Start server
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 API server running on http://0.0.0.0:${PORT}`);
 });
 
 export default app;
