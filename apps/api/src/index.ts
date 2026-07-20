@@ -15,6 +15,7 @@ import {
   createAuthMiddleware,
   AuthRequest,
 } from "./auth";
+import { createCrawlRouter } from "./crawler";
 // ============================================
 // DEBUG LOGGING
 // ============================================
@@ -131,6 +132,8 @@ app.get("/test-db", async (req, res) => {
 
 // Keep this at the bottom (around line 103):
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+// Crawl routes (protected)
+app.use("/api", createCrawlRouter(prisma, jwtService));
 
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
