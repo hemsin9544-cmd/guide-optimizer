@@ -61,7 +61,10 @@ try {
 }
 
 // Create pool
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  ssl: { rejectUnauthorized: false },
+});
 
 const adapter = new PrismaPg(pool);
 
