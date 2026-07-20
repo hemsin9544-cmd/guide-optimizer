@@ -51,7 +51,6 @@ const prisma = new PrismaClient({ adapter });
 const jwtService = new JWTService(process.env.JWT_SECRET || "fallback-secret");
 
 const app = express();
-const PORT = 3001;
 
 // Middleware
 app.use(helmet());
@@ -100,6 +99,16 @@ app.get("/test-db", async (req, res) => {
   }
 });
 // Start server
+// ... (imports and setup code)
+
+// Remove this old line (around line 54):
+// const PORT = 3001;
+
+// ... (middleware, routes, etc.)
+
+// Keep this at the bottom (around line 103):
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
 });
