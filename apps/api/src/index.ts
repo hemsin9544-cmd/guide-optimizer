@@ -42,7 +42,7 @@ dotenv.config();
 
 // Create PostgreSQL connection pool
 const connectionString =
-  process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL || "";
+  process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL || "";
 
 // Check if we have a connection string
 if (!connectionString) {
@@ -61,10 +61,7 @@ try {
 }
 
 // Create pool
-const pool = new Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
-});
+const pool = new Pool({ connectionString });
 
 const adapter = new PrismaPg(pool);
 
