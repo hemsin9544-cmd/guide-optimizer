@@ -41,7 +41,8 @@ process.on("unhandledRejection", (reason, promise) => {
 dotenv.config();
 
 // Create PostgreSQL connection pool
-const connectionString = process.env.DATABASE_URL;
+const connectionString =
+  process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
 const pool = new Pool({
   connectionString,
   ssl: { rejectUnauthorized: false },
