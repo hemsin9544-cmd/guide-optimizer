@@ -15,7 +15,28 @@ import {
   createAuthMiddleware,
   AuthRequest,
 } from "./auth";
+// ============================================
+// DEBUG LOGGING
+// ============================================
+console.log("=== STARTUP DEBUG ===");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("PORT:", process.env.PORT);
+console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+console.log("CORS_ORIGIN:", process.env.CORS_ORIGIN);
+console.log("REDIS_URL exists:", !!process.env.REDIS_URL);
+console.log("===================");
 
+// Catch all uncaught errors
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+  console.error("STACK:", err.stack);
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("UNHANDLED REJECTION at:", promise, "reason:", reason);
+});
+// ============================================
 // Load env vars FIRST
 dotenv.config();
 
@@ -61,6 +82,23 @@ app.get("/api/projects", auth, async (req: AuthRequest, res) => {
   res.json(projects);
 });
 
+// Test database connectivity
+app.get("/test-db", async (req, res) => {
+  try {
+    console.log("TEST-DB: Attempting user.count()");
+    const count = await prisma.user.count();
+    console.log("TEST-DB: Success, count =", count);
+    res.json({
+      status: "ok",
+      userCount: count,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("TEST-DB ERROR:", error);
+    console.error("TEST-DB STACK:", error.stack);
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
