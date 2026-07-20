@@ -51,7 +51,7 @@ const prisma = new PrismaClient({ adapter });
 const jwtService = new JWTService(process.env.JWT_SECRET || "fallback-secret");
 
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(helmet());
