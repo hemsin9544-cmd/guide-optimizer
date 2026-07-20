@@ -6,6 +6,8 @@ datasource db {
   provider = "postgresql"
 }
 
+// ... rest of your models
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
