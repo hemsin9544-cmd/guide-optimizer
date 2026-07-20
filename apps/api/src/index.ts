@@ -42,11 +42,26 @@ dotenv.config();
 
 // Create PostgreSQL connection pool
 const connectionString =
-  process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
-const pool = new Pool({
-  connectionString,
-  ssl: { rejectUnauthorized: false },
-});
+  process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL || "";
+
+// Check if we have a connection string
+if (!connectionString) {
+  console.error("ERROR: No DATABASE_URL or DATABASE_PUBLIC_URL set!");
+  process.exit(1);
+}
+
+// Parse URL to check for SSL params
+try {
+  const url = new URL(connectionString);
+  console.log("DB Host:", url.hostname);
+  console.log("DB Port:", url.port);
+  console.log("DB has sslmode:", url.searchParams.has("sslmode"));
+} catch (e) {
+  console.log("Failed to parse DB URL");
+}
+
+// Create pool
+const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
 // Create Prisma client WITH the adapter (required in Prisma 7)
