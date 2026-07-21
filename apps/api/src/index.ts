@@ -45,14 +45,11 @@ process.on("unhandledRejection", (reason, promise) => {
 // ============================================
 // Database connection
 // ============================================
-const connectionString =
-  process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL || "";
-
+const connectionString = process.env.DATABASE_URL || "";
 if (!connectionString) {
-  console.error("ERROR: No DATABASE_URL or DATABASE_PUBLIC_URL set!");
+  console.error("ERROR: No DATABASE_URL set!");
   process.exit(1);
 }
-
 let usePublicUrl = false;
 try {
   const url = new URL(connectionString);
