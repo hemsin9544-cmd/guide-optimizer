@@ -15,7 +15,7 @@ import {
   createAuthMiddleware,
   AuthRequest,
 } from "./auth";
-import { createCrawlerRouter } from "./crawler";
+import { createCrawlerRouter, createCrawlWorker } from "./crawler";
 
 // Load env vars FIRST
 dotenv.config();
@@ -123,6 +123,10 @@ app.get("/test-db", async (req, res) => {
 
 // Crawl routes (protected)
 app.use("/api", createCrawlerRouter(prisma, jwtService));
+
+// Start the background worker to process crawl jobs
+const crawlWorker = createCrawlWorker(prisma);
+console.log("🔧 Crawl worker started");
 
 // Start server
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
