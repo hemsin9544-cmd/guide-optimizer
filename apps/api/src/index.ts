@@ -129,7 +129,14 @@ app.use("/api", createCrawlerRouter(prisma, jwtService));
 
 // Start server
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-
+app.get("/debug-db-url", (req, res) => {
+  const url = process.env.DATABASE_URL || "NOT SET";
+  res.json({
+    host: url.match(/@([^:]+):/)?.[1] || "unknown",
+    port: url.match(/:(\d+)\//)?.[1] || "unknown",
+    hasSslParam: url.includes("sslmode"),
+  });
+});
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 API server running on http://0.0.0.0:${PORT}`);
 });
