@@ -16,6 +16,7 @@ import {
   AuthRequest,
 } from "./auth";
 import { createCrawlerRouter, createCrawlWorker } from "./crawler";
+import { createAnalyzeRouter } from "./ai/ai-router";
 
 // Load env vars FIRST
 dotenv.config();
@@ -123,6 +124,7 @@ app.get("/test-db", async (req, res) => {
 
 // Crawl routes (protected)
 app.use("/api", createCrawlerRouter(prisma, jwtService));
+app.use("/api", createAnalyzeRouter(prisma, jwtService));
 
 // Start the background worker to process crawl jobs
 const crawlWorker = createCrawlWorker(prisma);
