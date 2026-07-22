@@ -1,29 +1,53 @@
-import { BaseProvider, AnalysisType, AnalysisResult, Message } from "./base-provider";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  BaseProvider,
+  AnalysisType,
+  AnalysisResult,
+  Message,
+} from "./base-provider";
 
 export class GeminiProvider extends BaseProvider {
   name = "Gemini";
-  private apiKey: string;
+  private client: GoogleGenerativeAI;
 
   constructor(apiKey: string) {
     super();
-    this.apiKey = apiKey;
+    this.client = new GoogleGenerativeAI(apiKey);
+  }
+
+  private getModel() {
+    return this.client.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 
   async analyze(content: string, type: AnalysisType): Promise<AnalysisResult> {
-    // TODO: Implement with @google/generative-ai
-    console.log("Gemini analyze not yet implemented");
-    return { type, score: 0, suggestions: [], summary: "Not implemented" };
+    const prompt = this.buildAnalysisPrompt(content, type);
+    const model = this.getModel();
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    return this.parseAnalysisResponse(text, type);
   }
 
   async optimize(content: string, instructions: string): Promise<string> {
-    // TODO: Implement with @google/generative-ai
-    console.log("Gemini optimize not yet implemented");
-    return content;
+    const model = this.getModel();
+    const result = await model.generateContent(
+      `Optimize this content based on these instructions: ${instructions}\n\nContent:\n${content}`,
+    );
+    return result.response.text();
   }
 
   async chat(messages: Message[]): Promise<string> {
-    // TODO: Implement with @google/generative-ai
-    console.log("Gemini chat not yet implemented");
-    return "Not implemented";
+    const model = this.getModel();
+    // Gemini doesn't use a "system" role the same way; fold system messages into the first user turn
+    const history = messages
+      .filter((m) => m.role !== "system")
+      .map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
+
+    const chat = model.startChat({ history: history.slice(0, -1) });
+    const lastMessage = messages[messages.length - 1];
+    const result = await chat.sendMessage(lastMessage.content);
+    return result.response.text();
   }
 }
