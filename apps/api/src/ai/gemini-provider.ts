@@ -16,7 +16,7 @@ export class GeminiProvider extends BaseProvider {
   }
 
   private getModel() {
-    return this.client.getGenerativeModel({ model: "gemini-1.5-flash" });
+    return this.client.getGenerativeModel({ model: "gemini-2.5-flash" });
   }
 
   async analyze(content: string, type: AnalysisType): Promise<AnalysisResult> {
