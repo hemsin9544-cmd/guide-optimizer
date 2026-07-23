@@ -21,7 +21,10 @@ export interface Message {
 export abstract class BaseProvider {
   abstract name: string;
 
-  abstract analyze(content: string, type: AnalysisType): Promise<AnalysisResult>;
+  abstract analyze(
+    content: string,
+    type: AnalysisType,
+  ): Promise<AnalysisResult>;
   abstract optimize(content: string, instructions: string): Promise<string>;
   abstract chat(messages: Message[]): Promise<string>;
 
@@ -39,10 +42,44 @@ Content:
 ${content}`;
   }
 
-  protected parseAnalysisResponse(text: string, type: AnalysisType): AnalysisResult {
-    const scoreMatch = text.match(/score[:\s]*(\d+)/i);
-    const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
-    const suggestions = text.match(/[-•]\s*(.+)/g)?.map((s) => s.replace(/^[-•]\s*/, "")) || [];
-    return { type, score, suggestions, summary: text.slice(0, 200) };
+  protected parseAnalysisResponse(
+    text: string,
+    type: AnalysisType,
+  ): AnalysisResult {
+    // Extract score: matches "Score: 85", "SEO Score: 85 / 100", "score of 85", etc.
+    const scoreMatch = text.match(
+      /score[:\s]*(?:of\s*)?(\d{1,3})(?:\s*\/\s*100)?/i,
+    );
+    let score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+    score = Math.min(100, Math.max(0, score));
+
+    // Extract suggestions: lines starting with -, *, • or numbered (1. 2. etc), ignoring
+    // markdown bold markers and empty/separator lines.
+    const lines = text.split("\n");
+    const suggestions = lines
+      .map((line) => line.trim())
+      .filter((line) => /^([-*•]|\d+\.)\s+\S/.test(line))
+      .map((line) =>
+        line
+          .replace(/^([-*•]|\d+\.)\s+/, "")
+          .replace(/\*\*/g, "")
+          .trim(),
+      )
+      .filter((line) => line.length > 3 && line !== "--");
+
+    // Extract summary: prefer a "Summary:" section if present, else use first
+    // substantial paragraph that isn't the score line or a suggestion.
+    const summaryMatch = text.match(/summary[:\s]*\n?(.+?)(?:\n\n|\n#|$)/is);
+    let summary = summaryMatch
+      ? summaryMatch[1].replace(/\*\*/g, "").trim()
+      : lines
+          .find((l) => l.trim().length > 40 && !/^#|score/i.test(l.trim()))
+          ?.trim() || text.slice(0, 200).trim();
+
+    if (summary.length > 400) {
+      summary = summary.slice(0, 400).trim() + "...";
+    }
+
+    return { type, score, suggestions, summary };
   }
 }
